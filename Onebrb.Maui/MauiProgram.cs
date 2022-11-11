@@ -1,5 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Onebrb.Maui.Data;
+using Onebrb.Maui.MsalClient;
+using System.Reflection;
 
 namespace Onebrb.Maui
 {
@@ -18,11 +21,24 @@ namespace Onebrb.Maui
             builder.Services.AddMauiBlazorWebView();
 
 #if DEBUG
-		builder.Services.AddBlazorWebViewDeveloperTools();
-		builder.Logging.AddDebug();
+            builder.Services.AddBlazorWebViewDeveloperTools();
+            builder.Logging.AddDebug();
 #endif
 
             builder.Services.AddSingleton<WeatherForecastService>();
+
+            var executingAssembly = Assembly.GetExecutingAssembly();
+
+            using var stream = executingAssembly.GetManifestResourceStream("Onebrb.Maui.appsettings.json");
+
+            var configuration = new ConfigurationBuilder()
+                        .AddJsonStream(stream)
+                        .Build();
+
+            builder.Services.AddTransient<MainPage>();
+            builder.Services.AddSingleton<WeatherForecastService>();
+            builder.Services.AddSingleton<IPCAWrapper, PCAWrapper>();
+            builder.Configuration.AddConfiguration(configuration);
 
             return builder.Build();
         }

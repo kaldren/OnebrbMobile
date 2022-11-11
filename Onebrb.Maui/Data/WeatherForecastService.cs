@@ -1,20 +1,59 @@
+using Microsoft.Extensions.Configuration;
+using System.Text.Json;
+
 namespace Onebrb.Maui.Data
 {
     public class WeatherForecastService
     {
-        private static readonly string[] Summaries = new[]
-        {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+        private readonly IConfiguration _configuration;
+        private readonly Settings _settings;
 
-        public Task<WeatherForecast[]> GetForecastAsync(DateTime startDate)
+        public WeatherForecastService(IConfiguration configuration)
         {
-            return Task.FromResult(Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            _configuration = configuration;
+            _settings = _configuration.GetRequiredSection("Settings").Get<Settings>();
+        }
+
+        // Call the Secure Web API.
+        public async Task<List<WeatherForecast>> CallSecureWebApi()
+        {
+            if (Globals.AccessToken == null)
+                return new();
+
+            var result = new List<WeatherForecast>();
+
+            // Get the weather forecast data from the Secure Web API.
+            var client = new HttpClient();
+
+            // Create the request.
+            var message = new HttpRequestMessage(HttpMethod.Get, $"{_settings?.ApiUrl}weatherforecast");
+
+            // Add the Authorization Bearer header.
+            message.Headers.Add("Authorization", $"Bearer {Globals.AccessToken}");
+
+            // Send the request.
+            var response = await client.SendAsync(message).ConfigureAwait(false);
+
+            // Get the response.
+            var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            if (responseString == string.Empty)
             {
-                Date = startDate.AddDays(index),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            }).ToArray());
+                return result;
+            }
+
+            // Serialize the response.
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            result = JsonSerializer.Deserialize<List<WeatherForecast>>(responseString, options);
+
+            // Ensure a success status code.
+            response.EnsureSuccessStatusCode();
+
+            // Return the response.
+            return result!;
         }
     }
 }
