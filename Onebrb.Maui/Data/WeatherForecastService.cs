@@ -26,7 +26,7 @@ namespace Onebrb.Maui.Data
             var client = new HttpClient();
 
             // Create the request.
-            var message = new HttpRequestMessage(HttpMethod.Get, $"{_settings?.ApiUrl}weatherforecast");
+            var message = new HttpRequestMessage(HttpMethod.Get, $"{_settings?.ApiUrl}/weatherforecast");
 
             // Add the Authorization Bearer header.
             message.Headers.Add("Authorization", $"Bearer {Globals.AccessToken}");

@@ -7,7 +7,7 @@ public class Settings
     public string TenantId { get; set; }
 
     public string InstanceUrl { get; set; }
-    public string PolicySignUpSignIn { get; set; }
+    public string SignUpSignInPolicyId { get; set; }
     public string Authority { get; set; }
     public NestedSettings[] Scopes { get; set; }
     public string ApiUrl { get; set; }

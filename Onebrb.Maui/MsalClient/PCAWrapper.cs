@@ -46,7 +46,7 @@ public class PCAWrapper : IPCAWrapper
         if (PCA == null)
             return null;
 
-        var accounts = await PCA.GetAccountsAsync(_settings?.PolicySignUpSignIn).ConfigureAwait(false);
+        var accounts = await PCA.GetAccountsAsync(_settings?.SignUpSignInPolicyId).ConfigureAwait(false);
         var account = accounts.FirstOrDefault();
 
         var authResult = await PCA.AcquireTokenSilent(scopes, account)
@@ -65,7 +65,7 @@ public class PCAWrapper : IPCAWrapper
         if (PCA == null)
             return null;
 
-        var accounts = await PCA.GetAccountsAsync(_settings?.PolicySignUpSignIn).ConfigureAwait(false); ;
+        var accounts = await PCA.GetAccountsAsync(_settings?.SignUpSignInPolicyId).ConfigureAwait(false); ;
         var account = accounts.FirstOrDefault();
 
         return await PCA.AcquireTokenInteractive(scopes)
